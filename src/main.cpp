@@ -67,7 +67,7 @@ namespace grk {
 
 	void keyboard(unsigned char key, int x, int y)
 	{
-		float angleSpeed = 2.0f;
+		float angleSpeed = 1.0f;
 		float moveSpeed = 0.1f;
 		switch (key)
 		{
