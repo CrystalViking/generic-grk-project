@@ -36,7 +36,7 @@ namespace grk {
 	// Objects
 	obj::Model shipModel;
 	obj::Model sphereModel;
-	obj::Model jellyFish;
+	obj::Model jellyModel;
 
 
 	// Textures
@@ -67,6 +67,9 @@ namespace grk {
 	// variables for fps check
 	int myframe;
 	long mytime, mytimebase;
+
+
+
 
 
 	void keyboard(unsigned char key, int x, int y)
@@ -238,17 +241,20 @@ namespace grk {
 
 		sphereModel = obj::loadModelFromFile("models/sphere.obj");
 		shipModel = obj::loadModelFromFile("models/spaceship.obj");
+		jellyModel = obj::loadModelFromFile("models/Jelly_Fish.obj");
 
-		/*textureSun = Core::LoadTexture("textures/sun.png");
+		/*
 		textureEarth = Core::LoadTexture("textures/earth.png");
 		textureMercury = Core::LoadTexture("textures/mercury.png");
 		textureVenus = Core::LoadTexture("textures/venus.png");
 		textureComet = Core::LoadTexture("textures/comet.png");*/
 
-		textureJelly = Core::LoadTexture("textures/jelly1.png");
+		textureSun = Core::LoadTexture("textures/sun.png");
+		//textureJelly = Core::LoadTexture("textures/jelly1.png");
 		
 		shipContext.initFromOBJ(shipModel);
 		sphereContext.initFromOBJ(sphereModel);
+		jellyContext.initFromOBJ(jellyModel);
 
 		initializeSkybox(shaderLoader);
 	}
