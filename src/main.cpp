@@ -40,6 +40,7 @@ namespace grk {
 	// Textures
 	GLuint textureSun, textureMercury, textureVenus, textureEarth, textureComet;
 	GLuint programTexture;
+	GLuint programTextureSpecular;
 
 	Core::Shader_Loader shaderLoader;
 	Core::RenderContext shipContext;
@@ -272,6 +273,23 @@ namespace grk {
 		return result;
 	}
 
+	Core::Material* loadDiffuseSpecularMaterial(aiMaterial* material) {
+		aiString colorPath;
+		// use for loading textures
+
+		material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), colorPath);
+		Core::DiffuseSpecularMaterial* result = new Core::DiffuseSpecularMaterial();
+		result->texture = Core::LoadTexture(colorPath.C_Str());
+
+
+		aiString specularPath;
+		material->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), specularPath);
+		result->textureSpecular = Core::LoadTexture(specularPath.C_Str());
+		result->lightDir = lightDir;
+		result->program = programTextureSpecular;
+
+		return result;
+	}
 
 	void init()
 	{
