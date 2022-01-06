@@ -39,6 +39,7 @@ namespace grk {
 
 	// Textures
 	GLuint textureSun, textureMercury, textureVenus, textureEarth, textureComet;
+	GLuint programTexture;
 
 	Core::Shader_Loader shaderLoader;
 	Core::RenderContext shipContext;
@@ -255,6 +256,21 @@ namespace grk {
 
 	}
 	
+	Core::Material* loadDiffuseMaterial(aiMaterial* material) {
+		aiString colorPath;
+		// use for loading textures
+
+		material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), colorPath);
+		if (colorPath == aiString("")) {
+			return nullptr;
+		}
+		Core::DiffuseMaterial* result = new Core::DiffuseMaterial();
+		result->texture = Core::LoadTexture(colorPath.C_Str());
+		result->program = programTexture;
+		result->lightDir = lightDir;
+
+		return result;
+	}
 
 
 	void init()
