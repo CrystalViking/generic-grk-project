@@ -291,6 +291,27 @@ namespace grk {
 		return result;
 	}
 
+	void loadRecusive(const aiScene* scene, aiNode* node, std::vector<Core::Node>& nodes, std::vector<Core::Material*> materialsVector, int parentIndex) {
+		int index = nodes.size();
+		nodes.push_back(Core::Node());
+		nodes[index].parent = parentIndex;
+		nodes[index].matrix = Core::mat4_cast(node->mTransformation);
+		for (int i = 0; i < node->mNumMeshes; i++) {
+			Core::RenderContext context;
+			context.initFromAssimpMesh(scene->mMeshes[node->mMeshes[i]]);
+			context.material = materialsVector[scene->mMeshes[node->mMeshes[i]]->mMaterialIndex];
+			nodes[index].renderContexts.push_back(context);
+		}
+		for (int i = 0; i < node->mNumChildren; i++) {
+			loadRecusive(scene, node->mChildren[i], nodes, materialsVector, index);
+		}
+	}
+
+	void loadRecusive(const aiScene* scene, std::vector<Core::Node>& nodes, std::vector<Core::Material*> materialsVector) {
+
+		loadRecusive(scene, scene->mRootNode, nodes, materialsVector, -1);
+	}
+
 	void init()
 	{
 		glEnable(GL_DEPTH_TEST);
