@@ -151,6 +151,38 @@ namespace grk {
 		glUseProgram(0);
 	}
 
+	void renderRecursive(std::vector<Core::Node>& nodes) {
+		for (auto node : nodes) {
+			if (node.renderContexts.size() == 0) {
+				continue;
+			}
+
+
+
+			glm::mat4 transformation = glm::mat4();
+			// dodaj odwolania do nadrzednych zmiennych
+			Core::Node extraNode = node;
+
+			transformation = extraNode.matrix;
+
+			while (extraNode.parent != -1)
+			{
+				transformation = nodes[extraNode.parent].matrix * transformation;
+				//transformation =  transformation * nodes[node.parent].matrix;
+				extraNode = nodes[extraNode.parent];
+			}
+
+			for (auto context : node.renderContexts) {
+				auto program = context.material->program;
+				glUseProgram(program);
+				glUniform3f(glGetUniformLocation(program, "cameraPos"), cameraPos.x, cameraPos.y, cameraPos.z);
+				context.material->init_data();
+				drawObject(program, context, transformation);
+			}
+		}
+
+	}
+
 	void renderScene()
 	{
 		cameraMatrix = createCameraMatrix(xOffset, yOffset);
@@ -215,6 +247,9 @@ namespace grk {
 		renderSkybox(cameraMatrix, perspectiveMatrix);
 
 
+		renderRecursive(city);
+
+
 		/*
 		// Code to check fps (simply uncomment to use)
 		myframe++;
@@ -229,37 +264,7 @@ namespace grk {
 		glutSwapBuffers();
 	}
 
-	void renderRecursive(std::vector<Core::Node>& nodes) {
-		for (auto node : nodes) {
-			if (node.renderContexts.size() == 0) {
-				continue;
-			}
-
-
-
-			glm::mat4 transformation = glm::mat4();
-			// dodaj odwolania do nadrzednych zmiennych
-			Core::Node extraNode = node;
-
-			transformation = extraNode.matrix;
-
-			while (extraNode.parent != -1)
-			{
-				transformation = nodes[extraNode.parent].matrix * transformation;
-				//transformation =  transformation * nodes[node.parent].matrix;
-				extraNode = nodes[extraNode.parent];
-			}
-
-			for (auto context : node.renderContexts) {
-				auto program = context.material->program;
-				glUseProgram(program);
-				glUniform3f(glGetUniformLocation(program, "cameraPos"), cameraPos.x, cameraPos.y, cameraPos.z);
-				context.material->init_data();
-				drawObject(program, context, transformation);
-			}
-		}
-
-	}
+	
 	
 	Core::Material* loadDiffuseMaterial(aiMaterial* material) {
 		aiString colorPath;
