@@ -103,7 +103,7 @@ namespace grk {
 	void keyboard(unsigned char key, int x, int y)
 	{
 		float angleSpeed = 2.0f;
-		float moveSpeed = 0.1f;
+		float moveSpeed = 6.9f;
 		switch (key)
 		{
 		case 27: exit(0);	// ESC key to exit the window
@@ -394,9 +394,15 @@ namespace grk {
 		glEnable(GL_DEPTH_TEST);
 
 		program.load(shaderLoader, "shaders/shader.vert", "shaders/shader.frag");
+		//program.load(shaderLoader, "shaders/shader_4_1.vert", "shaders/shader_4_1.frag");
+
+		programTextureSpecular = shaderLoader.CreateProgram("shaders/shader_spec_tex.vert", "shaders/shader_spec_tex.frag");
+		programTexture = shaderLoader.CreateProgram("shaders/shader_tex_2.vert", "shaders/shader_tex_2.frag");
+
 		programSunTexturing.load(shaderLoader, "shaders/sun.vert", "shaders/sun.frag");
-		programTexturing.load(shaderLoader, "shaders/shader_tex.vert", "shaders/shader_tex.frag");
 		programProceduralTexturing.load(shaderLoader, "shaders/shader_proc_tex.vert", "shaders/shader_proc_tex.frag");
+
+		initModels();
 
 		sphereModel = obj::loadModelFromFile("models/sphere.obj");
 		shipModel = obj::loadModelFromFile("models/spaceship.obj");
@@ -411,6 +417,7 @@ namespace grk {
 		sphereContext.initFromOBJ(sphereModel);
 
 		initializeSkybox(shaderLoader);
+		//initModels();
 	}
 
 	void shutdown()
