@@ -121,6 +121,17 @@ namespace grk {
 		glUseProgram(0);
 	}
 
+	// drawObject for renderRecursive
+	void drawObject(GLuint program, Core::RenderContext context, glm::mat4 modelMatrix)
+	{
+		glm::mat4 transformation = perspectiveMatrix * cameraMatrix * modelMatrix;
+
+
+		glUniformMatrix4fv(glGetUniformLocation(program, "modelMatrix"), 1, GL_FALSE, (float*)&modelMatrix);
+		glUniformMatrix4fv(glGetUniformLocation(program, "transformation"), 1, GL_FALSE, (float*)&transformation);
+		context.render();
+	}
+
 	void drawObjectTexture(Core::RenderContext context, glm::mat4 modelMatrix, GLuint textureID, Shader& program)
 	{
 		program.use();
@@ -212,7 +223,37 @@ namespace grk {
 		glutSwapBuffers();
 	}
 
+	void renderRecursive(std::vector<Core::Node>& nodes) {
+		for (auto node : nodes) {
+			if (node.renderContexts.size() == 0) {
+				continue;
+			}
 
+
+
+			glm::mat4 transformation = glm::mat4();
+			// dodaj odwolania do nadrzednych zmiennych
+			Core::Node extraNode = node;
+
+			transformation = extraNode.matrix;
+
+			while (extraNode.parent != -1)
+			{
+				transformation = nodes[extraNode.parent].matrix * transformation;
+				//transformation =  transformation * nodes[node.parent].matrix;
+				extraNode = nodes[extraNode.parent];
+			}
+
+			for (auto context : node.renderContexts) {
+				auto program = context.material->program;
+				glUseProgram(program);
+				glUniform3f(glGetUniformLocation(program, "cameraPos"), cameraPos.x, cameraPos.y, cameraPos.z);
+				context.material->init_data();
+				drawObject(program, context, transformation);
+			}
+		}
+
+	}
 	
 
 
