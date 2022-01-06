@@ -1,4 +1,4 @@
-#include "glew.h"
+﻿#include "glew.h"
 #include "freeglut.h"
 #include "glm.hpp"
 #include "ext.hpp"
@@ -26,6 +26,31 @@ namespace grk {
 	int mainWindow;
 	float windowWidth = 600.0;
 	float windowHeight = 600.0;
+
+
+
+	// punkty na chybił trafił
+	std::vector<glm::vec3> keyPoints({
+	glm::vec3(-711.745f, 89.9272f, -626.537f),
+	glm::vec3(-711.745f, 91.9272f, -606.537f),
+	glm::vec3(-687.635f, 100.428f, -503.943f),
+	glm::vec3(-721.365f, 103.613f, -598.223f),
+	glm::vec3(-667.635f, 128.428f, -433.943f),
+	glm::vec3(-547.654f, 180.445f, -401.846f),
+	glm::vec3(-365.357f, 261.268f, -304.93f),
+	glm::vec3(-346.51f, 146.605f, -85.3702f),
+	glm::vec3(-461.105f, 120.275f, 115.596f),
+	glm::vec3(-507.395f, 76.497f, 338.408f),
+	glm::vec3(-181.343f, 58.7994f, 403.918f),
+	glm::vec3(-148.073f, 72.7797f, 522.283f),
+	glm::vec3(-76.8437f, 85.1488f, 524.396f),
+	glm::vec3(-30.0008f, 81.3007f, 367.907f),
+	glm::vec3(20.808f, 117.73f, 109.607f),
+	glm::vec3(8.72873f, 135.983f, -130.435f),
+	glm::vec3(8.72873f, 115.983f, -132.435f),
+	glm::vec3(8.72873f, 104.983f, -132.435f),
+	glm::vec3(8.72873f, 100.983f, -132.435f),
+		});
 
 	// Shaders
 	Shader program;
@@ -71,6 +96,8 @@ namespace grk {
 	long mytime, mytimebase;
 
 
+
+
 	
 
 	void keyboard(unsigned char key, int x, int y)
@@ -88,6 +115,7 @@ namespace grk {
 		case 'a': cameraPos -= glm::cross(cameraDir, glm::vec3(0, 1, 0)) * moveSpeed; break;
 		case 'e': cameraPos += glm::cross(cameraDir, glm::vec3(1, 0, 0)) * moveSpeed; break;
 		case 'q': cameraPos -= glm::cross(cameraDir, glm::vec3(1, 0, 0)) * moveSpeed; break;
+		case 'r': cameraPos = glm::vec3(0, 0, 1); break;
 		}
 	}
 
@@ -232,22 +260,26 @@ namespace grk {
 		drawObject(shipContext, shipModelMatrix, glm::vec3(0.6f), programProceduralTexturing);
 
 		// Sun
-		drawObjectTexture(sphereContext, glm::translate(glm::vec3(0, 0, 0)) * glm::scale(glm::vec3(0.95, 0.95, 0.95)), textureSun, programSunTexturing);
+		//drawObjectTexture(sphereContext, glm::translate(glm::vec3(0, 0, 0)) * glm::scale(glm::vec3(0.95, 0.95, 0.95)), textureSun, programSunTexturing);
 		// Mercury
-		drawObjectTexture(sphereContext, orbitalSpeed(300) * glm::translate(glm::vec3(1.5f, 0.f, 0.f)) * scaling(0.20), textureMercury, programTexturing);
+		//drawObjectTexture(sphereContext, orbitalSpeed(300) * glm::translate(glm::vec3(1.5f, 0.f, 0.f)) * scaling(0.20), textureMercury, programTexturing);
 		// Venus
-		drawObjectTexture(sphereContext, orbitalSpeed(150) * glm::translate(glm::vec3(2.f, 0.f, 0.f)) * scaling(0.30), textureVenus, programTexturing);
+		//drawObjectTexture(sphereContext, orbitalSpeed(150) * glm::translate(glm::vec3(2.f, 0.f, 0.f)) * scaling(0.30), textureVenus, programTexturing);
 		// Earth
-		drawObjectTexture(sphereContext, orbitalSpeed(120) * glm::translate(glm::vec3(3.f, 0.f, 0.f)) * scaling(0.35), textureEarth, programTexturing);
+		//drawObjectTexture(sphereContext, orbitalSpeed(120) * glm::translate(glm::vec3(3.f, 0.f, 0.f)) * scaling(0.35), textureEarth, programTexturing);
 		// Moon
-		drawObject(sphereContext, orbitalSpeed(120) * glm::translate(glm::vec3(3.f, 0.f, 0.f)) * moonRotation(65, 0.005) * glm::translate(glm::vec3(0.5f, 0.f, 0.f)) * scaling(0.05), glm::vec3(0.3), program);
+		//drawObject(sphereContext, orbitalSpeed(120) * glm::translate(glm::vec3(3.f, 0.f, 0.f)) * moonRotation(65, 0.005) * glm::translate(glm::vec3(0.5f, 0.f, 0.f)) * scaling(0.05), glm::vec3(0.3), program);
 		// Comet
-		drawObjectTexture(sphereContext, cometRotation(200, glm::vec3(1.f, -0.5f, 0.7f)) * glm::translate(glm::vec3(0.f, 4.f, 0.f)) * scaling(0.20), textureComet, programTexturing);
+		//drawObjectTexture(sphereContext, cometRotation(200, glm::vec3(1.f, -0.5f, 0.7f)) * glm::translate(glm::vec3(0.f, 4.f, 0.f)) * scaling(0.20), textureComet, programTexturing);
+
+
+		renderRecursive(city);
+		
 
 		renderSkybox(cameraMatrix, perspectiveMatrix);
 
 
-		renderRecursive(city);
+		
 
 
 		/*
