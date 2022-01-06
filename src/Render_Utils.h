@@ -6,6 +6,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include "Texture.h"
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
@@ -13,17 +14,44 @@ namespace Core
 {
 	static inline glm::mat4 mat4_cast(const aiMatrix4x4& m) { return glm::transpose(glm::make_mat4(&m.a1)); }
 
+	struct  Material {
+		GLuint program;
+		virtual void init_data() = 0;
+	};
+
+	struct DiffuseMaterial : Core::Material {
+		GLuint texture;
+		glm::vec3 lightDir;
+		void init_data();
+
+	};
+
+	struct DiffuseSpecularMaterial : Core::Material {
+		GLuint texture;
+		GLuint textureSpecular;
+		glm::vec3 lightDir;
+		void init_data();
+
+	};
 
 	struct RenderContext
-    {
+	{
+
 		GLuint vertexArray;
 		GLuint vertexBuffer;
 		GLuint vertexIndexBuffer;
+		Material* material;
 		int size = 0;
 
-        void initFromOBJ(obj::Model& model);
+		void initFromOBJ(obj::Model& model);
 
 		void initFromAssimpMesh(aiMesh* mesh);
+
+		void render();
+	};
+	struct RayContext : RenderContext {
+
+		void render();
 	};
 
 	struct Node {
@@ -35,16 +63,16 @@ namespace Core
 	// vertexArray - jednowymiarowa tablica zawierajaca wartosci opisujace pozycje kolejnych wierzcholkow w jednym ciagu (x1, y1, z1, w1, x2, y2, z2, w2, ...)
 	// numVertices - liczba wierzcholkow do narysowania
 	// elementSize - liczba wartosci opisujacych pojedynczy wierzcholek (np. 3 gdy wierzcholek opisany jest trojka (x, y, z))
-	void DrawVertexArray(const float * vertexArray, int numVertices, int elementSize);
+	void DrawVertexArray(const float* vertexArray, int numVertices, int elementSize);
 
 	// indexArray - jednowymiarowa tablica zawierajaca indeksy wierzcholkow kolejnych trojkatow w jednym ciagu (t1_i1, t1_i2, t1_i3, t2_i1, t2_i2, t2_i3, ...)
 	// numIndexes - liczba indeksow w tablicy indexArray
-	void DrawVertexArrayIndexed(const float * vertexArray, const int * indexArray, int numIndexes, int elementSize);
+	void DrawVertexArrayIndexed(const float* vertexArray, const int* indexArray, int numIndexes, int elementSize);
 
 
 	struct VertexAttribute
 	{
-		const void * Pointer;
+		const void* Pointer;
 		int Size;
 	};
 
@@ -61,13 +89,13 @@ namespace Core
 	// 
 	// Przykladowe wywolanie funkcji - narysowanie trojkata jak na pierwszych zajeciach:
 	/*
-	
+
 	const float vertices[] = {
 		0.25f,  0.25f, 0.0f, 1.0f,
 		0.25f, -0.25f, 0.0f, 1.0f,
 		-0.25f, -0.25f, 0.0f, 1.0f
 	};
-	
+
 	Core::VertexData vertexData;
 	vertexData.NumActiveAttribs = 1;			// Liczba uzywanych atrybutow wierzcholka
 	vertexData.Attribs[0].Pointer = vertices;	// Wskaznik na dane zerowego atrybutu
@@ -76,7 +104,14 @@ namespace Core
 	Core::DrawVertexArray(vertexData);
 
 	*/
-	void DrawVertexArray(const VertexData & data);
+	void DrawVertexArray(const VertexData& data);
 
-	void DrawContext(RenderContext& context);
+
+
+	void initRay(RayContext& rayContext);
+
+	void updateRayPos(RayContext& rayContext, std::vector<glm::vec3> keyPoints);
+
+	//void DrawContext(Core::RayContext& rayContext);
+	void DrawContext(Core::RenderContext& context);
 }

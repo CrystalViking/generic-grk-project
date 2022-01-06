@@ -36,17 +36,13 @@ namespace grk {
 	// Objects
 	obj::Model shipModel;
 	obj::Model sphereModel;
-	obj::Model jellyModel;
-
 
 	// Textures
-	GLuint textureSun, textureMercury, textureVenus, textureEarth, textureComet, textureJelly;
+	GLuint textureSun, textureMercury, textureVenus, textureEarth, textureComet;
 
 	Core::Shader_Loader shaderLoader;
 	Core::RenderContext shipContext;
 	Core::RenderContext sphereContext;
-	Core::RenderContext jellyContext;
-	
 
 	float cameraAngle = 0;
 	glm::vec3 cameraPos = glm::vec3(0, 0, 7);
@@ -69,12 +65,11 @@ namespace grk {
 	long mytime, mytimebase;
 
 
-
-
+	
 
 	void keyboard(unsigned char key, int x, int y)
 	{
-		float angleSpeed = 1.0f;
+		float angleSpeed = 2.0f;
 		float moveSpeed = 0.1f;
 		switch (key)
 		{
@@ -186,32 +181,19 @@ namespace grk {
 		glUniform3f(programSunTexturing.getUniform("cameraPos"), cameraPos.x, cameraPos.y, cameraPos.z);
 
 		drawObject(shipContext, shipModelMatrix, glm::vec3(0.6f), programProceduralTexturing);
-		
 
 		// Sun
 		drawObjectTexture(sphereContext, glm::translate(glm::vec3(0, 0, 0)) * glm::scale(glm::vec3(0.95, 0.95, 0.95)), textureSun, programSunTexturing);
 		// Mercury
-		//drawObjectTexture(sphereContext, orbitalSpeed(300) * glm::translate(glm::vec3(1.5f, 0.f, 0.f)) * scaling(0.20), textureMercury, programTexturing);
+		drawObjectTexture(sphereContext, orbitalSpeed(300) * glm::translate(glm::vec3(1.5f, 0.f, 0.f)) * scaling(0.20), textureMercury, programTexturing);
 		// Venus
-		//drawObjectTexture(sphereContext, orbitalSpeed(150) * glm::translate(glm::vec3(2.f, 0.f, 0.f)) * scaling(0.30), textureVenus, programTexturing);
+		drawObjectTexture(sphereContext, orbitalSpeed(150) * glm::translate(glm::vec3(2.f, 0.f, 0.f)) * scaling(0.30), textureVenus, programTexturing);
 		// Earth
-		//drawObjectTexture(sphereContext, orbitalSpeed(120) * glm::translate(glm::vec3(3.f, 0.f, 0.f)) * scaling(0.35), textureEarth, programTexturing);
+		drawObjectTexture(sphereContext, orbitalSpeed(120) * glm::translate(glm::vec3(3.f, 0.f, 0.f)) * scaling(0.35), textureEarth, programTexturing);
 		// Moon
-		//drawObject(sphereContext, orbitalSpeed(120) * glm::translate(glm::vec3(3.f, 0.f, 0.f)) * moonRotation(65, 0.005) * glm::translate(glm::vec3(0.5f, 0.f, 0.f)) * scaling(0.05), glm::vec3(0.3), program);
+		drawObject(sphereContext, orbitalSpeed(120) * glm::translate(glm::vec3(3.f, 0.f, 0.f)) * moonRotation(65, 0.005) * glm::translate(glm::vec3(0.5f, 0.f, 0.f)) * scaling(0.05), glm::vec3(0.3), program);
 		// Comet
-		//drawObjectTexture(sphereContext, cometRotation(200, glm::vec3(1.f, -0.5f, 0.7f)) * glm::translate(glm::vec3(0.f, 4.f, 0.f)) * scaling(0.20), textureComet, programTexturing);
-
-		// Jelly 1
-		drawObjectTexture(jellyContext, orbitalSpeed(300) * glm::translate(glm::vec3(1.5f, 0.f, 0.f)) * scaling(0.20), textureJelly, programTexturing);
-		// Jelly 2
-		drawObjectTexture(jellyContext, orbitalSpeed(150) * glm::translate(glm::vec3(2.f, 0.f, 0.f)) * scaling(0.30), textureJelly, programTexturing);
-		// Jelly 3
-		drawObjectTexture(jellyContext, orbitalSpeed(120) * glm::translate(glm::vec3(3.f, 0.f, 0.f)) * scaling(0.35), textureJelly, programTexturing);
-		// Jelly 4
-		drawObject(jellyContext, orbitalSpeed(120) * glm::translate(glm::vec3(3.f, 0.f, 0.f)) * moonRotation(65, 0.005) * glm::translate(glm::vec3(0.5f, 0.f, 0.f)) * scaling(0.05), glm::vec3(0.3), program);
-		// Jelly 5
-		drawObjectTexture(jellyContext, cometRotation(200, glm::vec3(1.f, -0.5f, 0.7f)) * glm::translate(glm::vec3(0.f, 4.f, 0.f)) * scaling(0.20), textureJelly, programTexturing);
-
+		drawObjectTexture(sphereContext, cometRotation(200, glm::vec3(1.f, -0.5f, 0.7f)) * glm::translate(glm::vec3(0.f, 4.f, 0.f)) * scaling(0.20), textureComet, programTexturing);
 
 		renderSkybox(cameraMatrix, perspectiveMatrix);
 
@@ -230,6 +212,10 @@ namespace grk {
 		glutSwapBuffers();
 	}
 
+
+	
+
+
 	void init()
 	{
 		glEnable(GL_DEPTH_TEST);
@@ -241,20 +227,15 @@ namespace grk {
 
 		sphereModel = obj::loadModelFromFile("models/sphere.obj");
 		shipModel = obj::loadModelFromFile("models/spaceship.obj");
-		jellyModel = obj::loadModelFromFile("models/Jelly_Fish.obj");
 
-		/*
+		textureSun = Core::LoadTexture("textures/sun.png");
 		textureEarth = Core::LoadTexture("textures/earth.png");
 		textureMercury = Core::LoadTexture("textures/mercury.png");
 		textureVenus = Core::LoadTexture("textures/venus.png");
-		textureComet = Core::LoadTexture("textures/comet.png");*/
+		textureComet = Core::LoadTexture("textures/comet.png");
 
-		textureSun = Core::LoadTexture("textures/sun.png");
-		//textureJelly = Core::LoadTexture("textures/jelly1.png");
-		
 		shipContext.initFromOBJ(shipModel);
 		sphereContext.initFromOBJ(sphereModel);
-		jellyContext.initFromOBJ(jellyModel);
 
 		initializeSkybox(shaderLoader);
 	}
