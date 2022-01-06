@@ -46,6 +46,10 @@ namespace grk {
 	Core::RenderContext shipContext;
 	Core::RenderContext sphereContext;
 
+	// complex objects
+	std::vector<Core::Node> city;
+
+
 	float cameraAngle = 0;
 	glm::vec3 cameraPos = glm::vec3(0, 0, 7);
 	glm::vec3 cameraDir; // Wektor "do przodu" kamery
@@ -310,6 +314,42 @@ namespace grk {
 	void loadRecusive(const aiScene* scene, std::vector<Core::Node>& nodes, std::vector<Core::Material*> materialsVector) {
 
 		loadRecusive(scene, scene->mRootNode, nodes, materialsVector, -1);
+	}
+
+	void initModels() {
+		Assimp::Importer importer;
+		//replace to get more buildings, unrecomdnded
+		//const aiScene* scene = importer.ReadFile("models/blade-runner-style-cityscapes.fbx", aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
+		const aiScene* scene = importer.ReadFile("models/city_small.fbx", aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
+		// check for errors
+		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
+		{
+			std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
+			return;
+		}
+
+
+
+		std::vector<Core::Material*> materialsVector;
+
+		for (int i = 0; i < scene->mNumMaterials; i++) {
+			materialsVector.push_back(loadDiffuseSpecularMaterial(scene->mMaterials[i]));
+		}
+		loadRecusive(scene, city, materialsVector);
+
+
+		
+
+		//Recovering points from fbx
+		//const aiScene* points = importer.ReadFile("models/path.fbx", aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
+
+		//auto root = points->mRootNode;
+
+		//for (int i = 0; i < root->mNumChildren; i++) {
+		//	auto node = root->mChildren[i];
+		//	std::cout << "glm::vec3(" << node->mTransformation.a4 << "f, " << node->mTransformation.b4 << "f, " << node->mTransformation.c4 << "f), " << std::endl;
+		//	//std::cout << node->mName.C_Str() << std::endl;
+		//}
 	}
 
 	void init()
