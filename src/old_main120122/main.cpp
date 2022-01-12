@@ -13,7 +13,6 @@
 #include "transformations.h"
 #include "skybox.h"
 #include "Shader.h"
-#include "SimpleEmitter.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -21,14 +20,12 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#include "SimpleEmitter.h"
 
 namespace grk {
 
 	int mainWindow;
 	float windowWidth = 600.0;
 	float windowHeight = 600.0;
-	SimpleEmitter* ParticleEmitter;
 
 
 
@@ -60,7 +57,6 @@ namespace grk {
 	Shader programSunTexturing;
 	Shader programTexturing;
 	Shader programProceduralTexturing;	//  for spaceship
-	GLuint programParticle;
 
 	// Objects
 	obj::Model shipModel;
@@ -70,7 +66,6 @@ namespace grk {
 	GLuint textureSun, textureMercury, textureVenus, textureEarth, textureComet;
 	GLuint programTexture;
 	GLuint programTextureSpecular;
-	
 
 	Core::Shader_Loader shaderLoader;
 	Core::RenderContext shipContext;
@@ -144,26 +139,6 @@ namespace grk {
 		glutWarpPointer(windowWidth / 2, windowHeight / 2);	// locks cursor inside window
 
 		return Core::createViewMatrixQuat(cameraPos, rotation);
-	}
-
-	void setUpUniformsParticles(GLuint program, glm::mat4 transformation)
-	{
-		glUniformMatrix4fv(glGetUniformLocation(program, "M_v"), 1, GL_FALSE, (float*)&cameraMatrix);
-		glUniformMatrix4fv(glGetUniformLocation(program, "M_p"), 1, GL_FALSE, (float*)&perspectiveMatrix);
-		glUniformMatrix4fv(glGetUniformLocation(program, "transformation"), 1, GL_FALSE, (float*)&transformation);
-		glUniform1f(glGetUniformLocation(program, "particleSize"), 0.01f);
-	}
-
-	void drawParticle(GLuint program, glm::mat4 transformation)
-	{
-		glUseProgram(program);
-
-		setUpUniformsParticles(program, transformation);
-
-		ParticleEmitter->update(0.05f);
-		ParticleEmitter->draw();
-
-		glUseProgram(0);
 	}
 
 	void drawObject(Core::RenderContext context, glm::mat4 modelMatrix, glm::vec3 color, Shader& program)
@@ -255,7 +230,6 @@ namespace grk {
 
 		// Macierz statku "przyczepia" go do kamery.
 		//glm::mat4 shipModelMatrix = glm::translate(cameraPos + cameraDir * 0.5f + glm::vec3(0, -0.25f, 0)) * glm::rotate(-cameraAngle + glm::radians(90.0f), glm::vec3(0, 1, 0)) * glm::scale(glm::vec3(0.25f));
-		//glm::mat4 shipInitialTransformation = glm::translate(glm::vec3(0, -0.25f, 0)) * glm::rotate(glm::radians(360.0f), glm::vec3(0, 1, 0)) * glm::rotate(glm::radians(180.0f), glm::vec3(1, 0, 0)) * glm::scale(glm::vec3(0.05f));
 		glm::mat4 shipInitialTransformation = glm::translate(glm::vec3(0, -0.25f, 0)) * glm::rotate(glm::radians(180.0f), glm::vec3(0, 1, 0)) * glm::rotate(glm::radians(zOffset), glm::vec3(0, 0, 1)) * glm::scale(glm::vec3(0.25f));
 		glm::mat4 shipModelMatrix = glm::translate(cameraPos + cameraDir * 0.5f) * glm::mat4_cast(glm::inverse(rotation)) * shipInitialTransformation;
 
@@ -284,7 +258,6 @@ namespace grk {
 		glUniform3f(programSunTexturing.getUniform("cameraPos"), cameraPos.x, cameraPos.y, cameraPos.z);
 
 		drawObject(shipContext, shipModelMatrix, glm::vec3(0.6f), programProceduralTexturing);
-		
 
 		// Sun
 		//drawObjectTexture(sphereContext, glm::translate(glm::vec3(0, 0, 0)) * glm::scale(glm::vec3(0.95, 0.95, 0.95)), textureSun, programSunTexturing);
@@ -319,7 +292,7 @@ namespace grk {
 			myframe = 0;
 		}
 		*/
-		drawParticle(programParticle, shipModelMatrix * glm::translate(glm::vec3(0.0f, -0.2f, -0.5f)));
+
 		glutSwapBuffers();
 	}
 
@@ -380,8 +353,6 @@ namespace grk {
 		loadRecusive(scene, scene->mRootNode, nodes, materialsVector, -1);
 	}
 
-	
-
 	void initModels() {
 		Assimp::Importer importer;
 		//replace to get more buildings, unrecomdnded
@@ -421,17 +392,15 @@ namespace grk {
 	void init()
 	{
 		glEnable(GL_DEPTH_TEST);
-		ParticleEmitter = new SimpleEmitter();
 
 		program.load(shaderLoader, "shaders/shader.vert", "shaders/shader.frag");
 		//program.load(shaderLoader, "shaders/shader_4_1.vert", "shaders/shader_4_1.frag");
 
 		programTextureSpecular = shaderLoader.CreateProgram("shaders/shader_spec_tex.vert", "shaders/shader_spec_tex.frag");
 		programTexture = shaderLoader.CreateProgram("shaders/shader_tex_2.vert", "shaders/shader_tex_2.frag");
-		
+
 		programSunTexturing.load(shaderLoader, "shaders/sun.vert", "shaders/sun.frag");
 		programProceduralTexturing.load(shaderLoader, "shaders/shader_proc_tex.vert", "shaders/shader_proc_tex.frag");
-		programParticle = shaderLoader.CreateProgram("shaders/shader_particle.vert", "shaders/shader_particle.frag");
 
 		initModels();
 
@@ -457,11 +426,8 @@ namespace grk {
 		shaderLoader.DeleteProgram(programSunTexturing.getShader());
 		shaderLoader.DeleteProgram(programTexturing.getShader());
 		shaderLoader.DeleteProgram(programProceduralTexturing.getShader());
-		shaderLoader.DeleteProgram(programParticle);
 
 		deleteSkybox();
-
-		if (NULL != ParticleEmitter) delete ParticleEmitter;
 	}
 
 	/*
